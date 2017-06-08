@@ -2,48 +2,48 @@ package nhs
 
 class PostCodeChecker {
 
-    def static single_digit_codes = 'BR|FY|HA|HD|HG|HR|HS|HX|JE|LD|SM|SR|WC|WN|ZE'
-    def static double_digit_codes = 'AB|LL|SO'
-    def static junk = '(?<junk>[^a-zA-Z\\d:]+)'
-    def static invalid = '(?<invalid>[^A-PR-UWYZ]+)'
-    def static no_space = '(?<nospace>[^\\s]+)'
-    def static not_double_digit = "(?<double>(${double_digit_codes})[0-9]\\s.+)"
-    def static not_single_digit = "(?<single>(${single_digit_codes})[0-9][0-9]\\s.+)"
-    def static inward_length = '(?<inward>[A-Z][0-9]+\\s[0-9][ABD-HJLNP-UW-Z])'
-    def static invalid_first = '(?<first>([^A-PR-UWYZ][0-9][A-HJKPSTU0-9]?\\s.+|[^A-PR-UWYZ][A-HK-Y][0-9][ABEHMNPRVWXY0-9]?\\s.+))'
-    def static invalid_second = '(?<second>[A-PR-UWYZ][^A-HK-Y0-9]([0-9][ABEHMNPRVWXY0-9]?\\s.+))'
-    def static invalid_third = '(?<third>[A-PR-UWYZ][0-9][^A-HJKPSTUW0-9\\s]\\s.+)'
-    def static invalid_fourth = '(?<fourth>[A-PR-UWYZ][A-HK-Y][0-9][^ABEHMNPRVWXY0-9\\s]\\s.+)'
-    def static invalid_checks = [junk, invalid, no_space, not_double_digit, not_single_digit, inward_length,
-                                 invalid_first, invalid_second, invalid_third, invalid_fourth]
+    def static SINGLE_DIGIT_CODES = 'BR|FY|HA|HD|HG|HR|HS|HX|JE|LD|SM|SR|WC|WN|ZE'
+    def static DOUBLE_DIGIT_CODES = 'AB|LL|SO'
+    def static JUNK = '(?<junk>[^a-zA-Z\\d:]+)'
+    def static INVALID = '(?<invalid>[^A-PR-UWYZ]+)'
+    def static NO_SPACE = '(?<nospace>[^\\s]+)'
+    def static NOT_DOUBLE_DIGIT = "(?<double>(${DOUBLE_DIGIT_CODES})[0-9]\\s.+)"
+    def static NOT_SINGLE_DIGIT = "(?<single>(${SINGLE_DIGIT_CODES})[0-9][0-9]\\s.+)"
+    def static INWARD_LENGTH = '(?<inward>[A-Z][0-9]+\\s[0-9][ABD-HJLNP-UW-Z])'
+    def static INVALID_FIRST = '(?<first>([^A-PR-UWYZ][0-9][A-HJKPSTU0-9]?\\s.+|[^A-PR-UWYZ][A-HK-Y][0-9][ABEHMNPRVWXY0-9]?\\s.+))'
+    def static INVALID_SECOND = '(?<second>[A-PR-UWYZ][^A-HK-Y0-9]([0-9][ABEHMNPRVWXY0-9]?\\s.+))'
+    def static INVALID_THIRD = '(?<third>[A-PR-UWYZ][0-9][^A-HJKPSTUW0-9\\s]\\s.+)'
+    def static INVALID_FOURTH = '(?<fourth>[A-PR-UWYZ][A-HK-Y][0-9][^ABEHMNPRVWXY0-9\\s]\\s.+)'
+    def static INVALID_CHECKS = [JUNK, INVALID, NO_SPACE, NOT_DOUBLE_DIGIT, NOT_SINGLE_DIGIT, INWARD_LENGTH,
+                                 INVALID_FIRST, INVALID_SECOND, INVALID_THIRD, INVALID_FOURTH]
 
-    def static validPostcodePattern = ~/(GIR\s0AA)|((([A-PR-UWYZ][0-9]{1,2})|(([A-PR-UWYZ][A-HK-Y][0-9](?<!(${single_digit_codes})[0-9])[0-9])|([A-PR-UWYZ][A-HK-Y](?<!${double_digit_codes})[0-9])|(WC[0-9][A-Z])|(([A-PR-UWYZ][0-9][A-HJKPSTUW])|([A-PR-UWYZ][A-HK-Y][0-9][ABEHMNPRVWXY]))))\s[0-9][ABD-HJLNP-UW-Z]{2})/
-    def static invalidPostCodePattern = ~/${invalid_checks.join('|')}/
+    def static VALID_POSTCODE_PATTERN = ~/(GIR\s0AA)|((([A-PR-UWYZ][0-9]{1,2})|(([A-PR-UWYZ][A-HK-Y][0-9](?<!(${SINGLE_DIGIT_CODES})[0-9])[0-9])|([A-PR-UWYZ][A-HK-Y](?<!${DOUBLE_DIGIT_CODES})[0-9])|(WC[0-9][A-Z])|(([A-PR-UWYZ][0-9][A-HJKPSTUW])|([A-PR-UWYZ][A-HK-Y][0-9][ABEHMNPRVWXY]))))\s[0-9][ABD-HJLNP-UW-Z]{2})/
+    def static INVALID_POSTCODE_PATTERN = ~/${INVALID_CHECKS.join('|')}/
 
     static Result check(String postcode) {
-        def matcher = validPostcodePattern.matcher(postcode)
-        if (!matcher.matches()) {
-            def combineder = invalidPostCodePattern.matcher(postcode)
-            if (combineder.matches()) {
-                if (combineder.group('junk')) {
-                    return new Result('Junk')
-                } else if (combineder.group('invalid')){
-                    return new Result('Invalid')
-                } else if (combineder.group('nospace')) {
-                    return new Result('No space')
-                } else if (combineder.group('single')) {
-                    return new Result('Area with only single digit districts')
-                } else if (combineder.group('double')) {
-                    return new Result('Area with only double digit districts')
-                } else if (combineder.group('inward')) {
-                    return new Result('Incorrect inward code length')
-                } else if (combineder.group('first')) {
-                    return new Result("'${postcode[0]}' in first position")
-                } else if (combineder.group('second')) {
+        def validPostcode = VALID_POSTCODE_PATTERN.matcher(postcode)
+        if (!validPostcode.matches()) {
+            def invalidResult = INVALID_POSTCODE_PATTERN.matcher(postcode)
+            if (invalidResult.matches()) {
+                if (invalidResult.group('junk')) {
+                    new Result('Junk')
+                } else if (invalidResult.group('invalid')){
+                    new Result('Invalid')
+                } else if (invalidResult.group('nospace')) {
+                    new Result('No space')
+                } else if (invalidResult.group('single')) {
+                    new Result('Area with only single digit districts')
+                } else if (invalidResult.group('double')) {
+                    new Result('Area with only double digit districts')
+                } else if (invalidResult.group('inward')) {
+                    new Result('Incorrect inward code length')
+                } else if (invalidResult.group('first')) {
+                    new Result("'${postcode[0]}' in first position")
+                } else if (invalidResult.group('second')) {
                     new Result("'${postcode[1]}' in second position")
-                } else if (combineder.group('third')) {
+                } else if (invalidResult.group('third')) {
                     new Result("'${postcode[2]}' in third position with 'A9A' structure")
-                } else if (combineder.group('fourth')) {
+                } else if (invalidResult.group('fourth')) {
                     new Result("'${postcode[3]}' in fourth position with 'AA9A' structure")
                 }
             } else  {

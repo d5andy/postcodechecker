@@ -6,7 +6,9 @@ apply plugin: 'application'
 
 
 mainClassName = 'nhs.CsvProcessor'
-
+run {
+    args project['args']
+}
 repositories {
     mavenCentral()
 }

@@ -3,9 +3,6 @@ package nhs
 import java.time.Duration
 import java.time.Instant
 
-/**
- * sort -t ',' -k 1 -n failed_validation.csv > sorted.txt
- */
 class CsvProcessor {
 
     static void main(String[] args) {
@@ -13,16 +10,16 @@ class CsvProcessor {
 
         println '<++++++++++++++++++++++++++++++++++++++++++++++++++++++>'
         println '=> Total time when unsorted ' + withTimed {
-            new CsvProcessor().processUnsorted(file) //3844
+            new CsvProcessor().processUnsorted(file)
         } + 'ms'
         println '<++++++++++++++++++++++++++++++++++++++++++++++++++++++>'
         println '=> Total time when post sorted ' + withTimed {
-            new CsvProcessor().processPostSorted(file) //12554
+            new CsvProcessor().processPostSorted(file)
 
         } + 'ms'
         println '<++++++++++++++++++++++++++++++++++++++++++++++++++++++>'
         println '=> Total time when pre sorted ' + withTimed {
-            new CsvProcessor().processPreSorted(file) //12568
+            new CsvProcessor().processPreSorted(file)
         } + 'ms'
         println '<++++++++++++++++++++++++++++++++++++++++++++++++++++++>'
     }
