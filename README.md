@@ -21,14 +21,14 @@ The supplied Regex will not cover (based on the wiki article):
 * British Forces Post Office
 * National Health Services pseudo-postcodes
 
-## Task2
+## failed_validation_0
 
 Implemented in nhs.CsvProcessor generates the following file outputs:
 * failed_validation_0.csv & succeeded_validation_0.csv (unsorted)
 * failed_validation_1.csv & succeeded_validation_1.csv (post-sorted)
 * failed_validation_2.csv & succeeded_validation_3.csv (pre-sorted)
 In addition it outputs the following information to the console:
-`
+```
 <++++++++++++++++++++++++++++++++++++++++++++++++++++++>
 Time spent on valid 2468ms, time spent on failed 181ms
 => Total time when unsorted 5823ms
@@ -41,7 +41,7 @@ Processing Time 9269ms
 Writing Time 2029ms
 => Total time when pre sorted 11320ms
 <++++++++++++++++++++++++++++++++++++++++++++++++++++++>
-`
+```
 
 #### How to run
 
@@ -56,36 +56,31 @@ Or follow the steps in Task 1 to build then you can run directly from the checke
 ## Task 3
 
 Performance was measured by taking time snapshots using the following closure at strategic points in the code:
-`groovy 
+```groovy 
     static def withTimed(Closure closure) {
         Instant start = Instant.now()
         closure.call()
         Instant end = Instant.now()
         Duration.between(start, end).toMillis()
     }
-`
+```
 
 #### Performance Analysis / Improvements
-Its fairly obvious from the timings that the sorting is the expensive operation.
-By far and away the cheapest option (on \*nix machines) is to take the unsorted failed_validation_0.csv and apply the following command:
+Its fairly obvious from the timings is that the sorting is the most expensive operation.
+Given that the raw unsort processing takes roughly 5s and 22s to sort from an in-memory this is the area I opted to tackle.
 
-`bash
+By far and away the cheapest option to resolve the sorting (on \*nix machines) is to take the unsorted failed_validation_0.csv and apply the following command:
+```bash
 sort -t ',' -k 1 -n failed_validation_0.csv > failed_validation_0_sorted.csv
-`
-However performance can be increased by using TreeMap (Java standard Collection) which sorts as the items are added.
+```
+
+However performance of the groovy implementation can be increased by using TreeMap (Java standard Collection) which sorts as the items are added.
 
 The difference between the two approaches can be seen in the console output above from task 2; a saving of roughly 7s.
 
-If the dataset was to grow larger that memory would become an issue as everything has to be held in memory in this naive implementation.
+Looking forward if the dataset was to grow larger that memory could become an issue (depending on target platform) - as everything has to be held in memory in this naive implementation. In addition TreeMap may not be the optimal solution for sorting if the dataset grows.
 
 At that point it would possible be necessary to pipe the output into fixed size buckets (individual files). 
 Then sort the buckets and then recombine the buckets together in a stream map / reduce manner.
 This approach would allow the buckets to be streamed and sorted against each other as they have been sorted individually into a single file.
 Thus allowing a greater size of data.
-
-
-
-
-
-
-
