@@ -21,7 +21,7 @@ The supplied Regex will not cover (based on the wiki article):
 * British Forces Post Office
 * National Health Services pseudo-postcodes
 
-## failed_validation_0
+## Task 2
 
 Implemented in nhs.CsvProcessor generates the following file outputs:
 * failed_validation_0.csv & succeeded_validation_0.csv (unsorted)
@@ -45,7 +45,7 @@ Writing Time 2029ms
 
 #### How to run
 
-Either unzip/untar the released bundle at:
+Either unzip/untar the [bundle at](https://github.com/d5andy/postcodechecker/releases/download/1/postcode-1.0-SNAPSHOT.tar):
 
 Then run the command:
 `./postcode/bin/postcode [csv_file_to_import]`
