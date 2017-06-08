@@ -1,29 +1,47 @@
 # Postcode checker and importer
 
-#### Task 1
+## Task 1
 
-Implemented a 
-
-See nhs.PostCodeChecker & nhs.PostCodeCheckerTest
-
-#### Task 2
-
-See nhs.CsvProcessor
-
-
-#### Task 3
-
-Performance was measured by taking time
-
-Improvements:
-
-
+Implemented using Groovy which uses 2.3.11 and requires Java 8; see nhs.PostCodeChecker & nhs.PostCodeCheckerTest
 
 #### How to build
 
 `./gradlew clean test assembleDist`
 
-Produces a deployable tar/zip in the build/dist folder
+Which:
+* Builds the code
+* Runs the test against the example scenarios described task gist
+* Builds a jar and distribution tar/zip (used in task 2 & 3)
+
+#### Analysis of Ommissions
+
+The supplied Regex will not cover (based on the wiki article):
+* Crown dependencies (does support GY)
+* Overseas territories
+* British Forces Post Office
+* National Health Services pseudo-postcodes
+
+## Task2
+
+Implemented in nhs.CsvProcessor generates the following file outputs:
+* failed_validation_0.csv & succeeded_validation_0.csv (unsorted)
+* failed_validation_1.csv & succeeded_validation_1.csv (post-sorted)
+* failed_validation_2.csv & succeeded_validation_3.csv (pre-sorted)
+In addition it outputs the following information to the console:
+`
+<++++++++++++++++++++++++++++++++++++++++++++++++++++++>
+Time spent on valid 2468ms, time spent on failed 181ms
+=> Total time when unsorted 5823ms
+<++++++++++++++++++++++++++++++++++++++++++++++++++++++>
+Processing Time 5520ms
+Writing and Sorting Time 13447ms
+=> Total time when post sorted 18979ms
+<++++++++++++++++++++++++++++++++++++++++++++++++++++++>
+Processing Time 9269ms
+Writing Time 2029ms
+=> Total time when pre sorted 11320ms
+<++++++++++++++++++++++++++++++++++++++++++++++++++++++>
+`
 
 #### How to run
 
@@ -32,5 +50,42 @@ Either unzip/untar the released bundle at:
 Then run the command:
 `./postcode/bin/postcode [csv_file_to_import]`
 
-Or you can run directly from the checked out code:
-`./gradlew run -Dargs="[csv_file_to_import]"`
+Or follow the steps in Task 1 to build then you can run directly from the checked out code:
+`./gradlew run -Pargs="[csv_file_to_import]"`
+
+## Task 3
+
+Performance was measured by taking time snapshots using the following closure at strategic points in the code:
+`groovy 
+    static def withTimed(Closure closure) {
+        Instant start = Instant.now()
+        closure.call()
+        Instant end = Instant.now()
+        Duration.between(start, end).toMillis()
+    }
+`
+
+#### Performance Analysis / Improvements
+Its fairly obvious from the timings that the sorting is the expensive operation.
+By far and away the cheapest option (on \*nix machines) is to take the unsorted failed_validation_0.csv and apply the following command:
+
+`bash
+sort -t ',' -k 1 -n failed_validation_0.csv > failed_validation_0_sorted.csv
+`
+However performance can be increased by using TreeMap (Java standard Collection) which sorts as the items are added.
+
+The difference between the two approaches can be seen in the console output above from task 2; a saving of roughly 7s.
+
+If the dataset was to grow larger that memory would become an issue as everything has to be held in memory in this naive implementation.
+
+At that point it would possible be necessary to pipe the output into fixed size buckets (individual files). 
+Then sort the buckets and then recombine the buckets together in a stream map / reduce manner.
+This approach would allow the buckets to be streamed and sorted against each other as they have been sorted individually into a single file.
+Thus allowing a greater size of data.
+
+
+
+
+
+
+
