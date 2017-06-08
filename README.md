@@ -16,7 +16,7 @@ Which:
 #### Analysis of Ommissions
 
 The supplied Regex will not cover (based on the wiki article):
-* Crown dependencies (does support GY)
+* Crown dependencies
 * Overseas territories
 * British Forces Post Office
 * National Health Services pseudo-postcodes
