@@ -1,19 +1,27 @@
-group 'nhs'
-version '1.0-SNAPSHOT'
 
-apply plugin: 'groovy'
-apply plugin: 'application'
+plugins {
+    id 'groovy'
 
-
-mainClassName = 'nhs.CsvProcessor'
-run {
-    args project['args']
+    id 'application'
 }
+
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    compile 'org.codehaus.groovy:groovy-all:2.3.11'
-    testCompile 'org.spockframework:spock-core:1.0-groovy-2.4'
+    implementation 'org.codehaus.groovy:groovy-all:3.0.7'
+
+    implementation 'com.google.guava:guava:30.1-jre'
+
+    testImplementation 'org.spockframework:spock-core:2.0-groovy-3.0'
+    testImplementation 'junit:junit:4.13.2'
+}
+
+application {
+    mainClass = 'nhs.CsvProcessor'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
 }
